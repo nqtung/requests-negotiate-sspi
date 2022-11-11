@@ -19,12 +19,19 @@ except ImportError:
 
 _logger = logging.getLogger(__name__)
 
+class AuthTokenInfo():
+    def __init__(self) -> None:
+        self.cookie = ""
+        self.scheme = ""
+        self.token = ""
 
 class HttpNegotiateAuth(AuthBase):
     _auth_info = None
     _service = 'HTTP'
     _host = None
     _delegate = False
+
+    _auth_token_info = AuthTokenInfo()
 
     def __init__(self, username=None, password=None, domain=None, service=None, host=None, delegate=False):
         """Create a new Negotiate auth handler
@@ -61,6 +68,8 @@ class HttpNegotiateAuth(AuthBase):
 
     def _retry_using_http_Negotiate_auth(self, response, scheme, args):
         if 'Authorization' in response.request.headers:
+            print('----Authorization: {} {}'.format(response.request.headers['Authorization']))
+
             return response
 
         if self._host is None:
@@ -115,11 +124,19 @@ class HttpNegotiateAuth(AuthBase):
         # authentication-related info in cookies
         if response.headers.get('set-cookie'):
             request.headers['Cookie'] = response.headers.get('set-cookie')
+            
+            self._auth_token_info.cookie = response.headers.get('set-cookie')
+            # print('--------- Cookie: {}'.format(self._auth_token_info.cookie)
 
         # Send initial challenge auth header
         try:
             error, auth = clientauth.authorize(sec_buffer)
             request.headers['Authorization'] = '{} {}'.format(scheme, base64.b64encode(auth[0].Buffer).decode('ASCII'))
+            
+            self._auth_token_info.scheme = scheme
+            self._auth_token_info.token = base64.b64encode(auth[0].Buffer).decode('ASCII')
+            print('----initial challenge auth header: {} {}'.format(self._auth_token_info.scheme , self._auth_token_info.token))
+
             _logger.debug('Sending Initial Context Token - error={} authenticated={}'.format(error, clientauth.authenticated))
         except pywintypes.error as e:
             _logger.debug('Error calling {}: {}'.format(e[1], e[2]), exc_info=e)
@@ -181,6 +198,11 @@ class HttpNegotiateAuth(AuthBase):
         try:
             error, auth = clientauth.authorize(sec_buffer)
             request.headers['Authorization'] = '{} {}'.format(scheme, base64.b64encode(auth[0].Buffer).decode('ASCII'))
+            
+            self._auth_token_info.scheme = scheme
+            self._auth_token_info.token = base64.b64encode(auth[0].Buffer).decode('ASCII')
+            print('----Perform next authorization step: {} {}'.format(self._auth_token_info.scheme , self._auth_token_info.token))
+
             _logger.debug('Sending Response - error={} authenticated={}'.format(error, clientauth.authenticated))
         except pywintypes.error as e:
             _logger.debug('Error calling {}: {}'.format(e[1], e[2]), exc_info=e)
