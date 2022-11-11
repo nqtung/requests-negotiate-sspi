@@ -68,8 +68,6 @@ class HttpNegotiateAuth(AuthBase):
 
     def _retry_using_http_Negotiate_auth(self, response, scheme, args):
         if 'Authorization' in response.request.headers:
-            print('----Authorization: {} {}'.format(response.request.headers['Authorization']))
-
             return response
 
         if self._host is None:
