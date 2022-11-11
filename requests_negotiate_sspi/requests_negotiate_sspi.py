@@ -162,6 +162,11 @@ class HttpNegotiateAuth(AuthBase):
                     tokenbuf.Buffer = base64.b64decode(final.encode('ASCII'))
                     sec_buffer.append(tokenbuf)
                     error, auth = clientauth.authorize(sec_buffer)
+                    
+                    self._auth_token_info.scheme = scheme
+                    self._auth_token_info.token = base64.b64encode(auth[0].Buffer).decode('ASCII')
+                    # print('----Kerberos Authentication succeeded: {} {}'.format(self._auth_token_info.scheme , self._auth_token_info.token))
+
                     _logger.debug('Kerberos Authentication succeeded - error={} authenticated={}'.format(error, clientauth.authenticated))
                 except TypeError:
                     pass
