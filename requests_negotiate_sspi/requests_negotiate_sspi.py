@@ -135,7 +135,7 @@ class HttpNegotiateAuth(AuthBase):
             
             self._auth_token_info.scheme = scheme
             self._auth_token_info.token = base64.b64encode(auth[0].Buffer).decode('ASCII')
-            print('----initial challenge auth header: {} {}'.format(self._auth_token_info.scheme , self._auth_token_info.token))
+            # print('----initial challenge auth header: {} {}'.format(self._auth_token_info.scheme , self._auth_token_info.token))
 
             _logger.debug('Sending Initial Context Token - error={} authenticated={}'.format(error, clientauth.authenticated))
         except pywintypes.error as e:
@@ -201,7 +201,7 @@ class HttpNegotiateAuth(AuthBase):
             
             self._auth_token_info.scheme = scheme
             self._auth_token_info.token = base64.b64encode(auth[0].Buffer).decode('ASCII')
-            print('----Perform next authorization step: {} {}'.format(self._auth_token_info.scheme , self._auth_token_info.token))
+            # print('----Perform next authorization step: {} {}'.format(self._auth_token_info.scheme , self._auth_token_info.token))
 
             _logger.debug('Sending Response - error={} authenticated={}'.format(error, clientauth.authenticated))
         except pywintypes.error as e:
